@@ -5,15 +5,21 @@ import { useAsyncInitialize } from "./useAsyncInitialize";
 import { useTonConnect } from "./useTonConnect";
 import { Address, OpenedContract } from "ton-core";
 import { useQuery } from "@tanstack/react-query";
+import { CHAIN } from "@tonconnect/protocol";
 
 export function useCounterContract() {
   const { client } = useTonClient();
-  const { sender } = useTonConnect();
+  const { sender, network } = useTonConnect();
 
   const counterContract = useAsyncInitialize(async () => {
-    if (!client) return;
+    if (!client || !network) return;
+
     const contract = new Counter(
-      Address.parse("EQBYLTm4nsvoqJRvs_L-IGNKwWs5RKe19HBK_lFadf19FUfb") // replace with your address from tutorial 2 step 8
+      Address.parse(
+        network === CHAIN.MAINNET
+          ? "EQBPEDbGdwaLv1DKntg9r6SjFIVplSaSJoJ-TVLe_2rqBOmH"
+          : "EQBYLTm4nsvoqJRvs_L-IGNKwWs5RKe19HBK_lFadf19FUfb"
+      ) // replace with your address from tutorial 2 step 8
     );
     return client.open(contract) as OpenedContract<Counter>;
   }, [client]);
